@@ -126,120 +126,125 @@ __autoload方法是一种根据类和文件的结构，管理类库文件包含�
 5. 依赖-倒置原则
 
 ##### sql优化的10个原则：
-不要在列上进行函数运算，导致索引失败
-使用JOIN时，应用小结果集驱动大结果集。把复杂的JOIN查询拆分为多条sql
-使用like模糊查询时，避免%%，可替换为<= 、 >=
-select后仅列出需要的字段，对速度不会有明显影响，主要考虑节省内存
-使用批量插入语句，比依次执行单个插入节省交互
-limit的技术比较大时考虑使用between
-不要使用rand函数获取多条随机记录
-避免使用NULL
-不要使用count(id)，而是count(*)
-尽可能在索引中完成排序
-	缓存的三个要素：
-	命中率
-	缓存更新策略
-	缓存最大数据量
-	通常缓存更新策略有：
-	FIFO（先进先出）
-	LRU（最近最少淘汰策略）
-	LFU（最少使用淘汰策略）
-	MySQL 的 Query Cache使用的是FIFO策略
-	缓存的最大数据量是在缓存中能够处理元素的最大数或所能使用的最大存储空间
-	超过缓存机制允许的最大数据量系统会进行相应的处理，一般处理方式有：
-	停止缓存服务器，清空所有缓存数据
-	拒绝写入，不再对缓存数据进行更新
-	根据缓存更新策略清除旧数据
-	基于3的方式，对淘汰的数据进行备份
-	Opcode缓存：
-	    虚拟机把PHP代码编译成一种中间码的结果缓存起来，下次PHP运行此页面时，只要直接解释这些代码就行了。
-		eAccelerator工具能起到常驻内存的作用
+1. 不要在列上进行函数运算，导致索引失败
+2. 使用JOIN时，应用小结果集驱动大结果集。把复杂的JOIN查询拆分为多条sql
+3. 使用like模糊查询时，避免%%，可替换为<= 、 >=
+4. select后仅列出需要的字段，对速度不会有明显影响，主要考虑节省内存
+5. 使用批量插入语句，比依次执行单个插入节省交互
+6. limit的技术比较大时考虑使用between
+7. 不要使用rand函数获取多条随机记录
+8. 避免使用NULL
+9. 不要使用count(id)，而是count(*)
+10. 尽可能在索引中完成排序
 
-		客户端缓存、http缓存（待记录）
-		H5中的Application Cache:
-		用来处理离线应用中的问题，用户不能联网时依然能浏览整个站点
-		需要在html中指定页面是否需要此缓存：
-		<html manifest="cacheName.mf">
+##### 缓存的三个要素：
+1. 命中率
+2. 缓存更新策略
+3. 缓存最大数据量
 
-		Memcached
-		使用Memcached：
-		对数据库的高并发读写
-		对海量数据处理
-		Memcached是高性能的分布式内存缓存服务器，通过缓存数据库查询结果，减少数据库访问次数。
-		Memcached特点：
-		协议简单
-		基于libevent的事件处理
-		内置内存存储方式
-		采用不互相通信的分布式
-		以守护进程方式运行与一个或多个服务器中
-		Memcached使用LRU算法淘汰数据缓存
-		不支持数据持久化
-		Memcached把数据存储在内存中，所以重启Memcached或者操作系统会导致数据全部消失
+##### 通常缓存更新策略有：
+* FIFO（先进先出）
+* LRU（最近最少淘汰策略）
+* LFU（最少使用淘汰策略）
 
-		安装memcached：
-		apt-get install memcached
-		启动memcached:
-		memcached -d -m 128 -u root -p 11211
-		-d：守护进程方式运行
-		-m：设置Memcached可使用的内存大小，单位是MB
-		-l：设置监听的IP地址，本机可默认不设置
-		-u：指定用户
-		-p：设置监听的端口，默认为11211
+MySQL 的 Query Cache使用的是FIFO策略 
+缓存的最大数据量是在缓存中能够处理元素的最大数或所能使用的最大存储空间 
 
-		安装PHP的memcached扩展：
-		 sudo apt-get install php5-memcache
+超过缓存机制允许的最大数据量系统会进行相应的处理，一般处理方式有：
+1. 停止缓存服务器，清空所有缓存数据
+2. 拒绝写入，不再对缓存数据进行更新
+3. 根据缓存更新策略清除旧数据
+4. 基于3的方式，对淘汰的数据进行备份
 
-		 memcached扩展的一些方法：
-		 Memcache::connect(string $host [, int $port [ , int $timeout]]);     //连接mem服务器
-		     $timeout为连接持续时间，默认为1秒。过长的时间会倒置失去所有缓存的优势
-			 Memcache::addServer(string $host [ , $port [ , $bool $persistent [ , $weight [, int $timeout [, int $retry_interval [ , bool $status [ , callback $failure_callback]]]]]]]);     //向对象添加一个服务器
-			 Memcache::add(string $key,$mixed $var [, int $flag[ , int $expire]]);    //添加缓存数据
-			 key长度不能超过250字节，
-			 var 值最大为1MB
-			 $flag 是否使用ZLib压缩，设置为MEMACHE_COMPRESSED使用压缩
-			 $expire缓存过期时间，0表示不过期。设置不能大于2592000（30天）
-			 Memcache::replace(string $key, mixed $var [ , int $flag [, int $expire]]);    //替换一个已存在的key
-			 Memcache::set(string $key ,mixed $vsar [ , $flag [ , $expire]])    //add和replace的集合体
-	Memcache::get(string $key [ , int &flags]);    //获取key的缓存内容
-	$flags 如果给定此参数（引用方式传递），该参数会被写入一些与key对应的信息
-	Memcache::delete(string $key [ , $timeout]);    //删除key的缓存
-	Memcache::flush(void);    //立即使所有已经存在的缓存失效
-	不真正释放任何资源，仅标记为失效
-	Memcache::getServerStatus(string $host [ , $port]);    //获取一个服务器的在线/离线状态
-	Memcache::getStats([ string $type [ , $slabid [ , int $limit = 100]]]);    //获取服务器的统计信息
-	Memcache::close(void);    //关闭与Memcache服务器的连接
-	Memcached使用多路复用I/O模型（如epoll、select）,传统阻塞IO中 系统可能会因为某个用户连接还没做好IO准备而一直等待，直到这个连接做好准备，如果此时游其他用户连接到服务器，可能会因为系统阻塞而得不到相应。
-	多路复用I/O是一种消息通知模式，用户连接做好IO准备后，系统会通知这个连接可进行IO操作，这样就不会阻塞在某个用户连接。
-	Memcached使用Slab分配算法保存数据
-	Slab分配算法的原理是，把固定大小(mem默认为1M)的内存划分为n块，每1M大小的内存块称为一个slab页，每次向系统申请一个slab页，然后通过分割算法把这个slab页分成若个小块的chunk，然后把这些chunk分配给用户使用。
-	Memcached多线程模型：
-	主线程：接受客户端连接，并把连接分配给工作线程处理
-	工作线程：处理客户端连接的请求
-	Memcached分布式布置方案：
-	普通Hash分布
-	一致性Hash分布
-	Redis
-	Redis把整个数据库全加载到内存中进行操作，通过异步操作定期把数据库数据flush到硬盘保存
-	Reids特点：
-	支持丰富的数据类型：String、List、Sort、Sorted Set、Hash
-	支持数据持久化方式：内存快照、日志追加
-	支持主从复制
-	安装Redis:
-	http://www.cnblogs.com/fslnet/p/3759284.html
-	安装php扩展redis:
-	sudo apt-get install php5-redis
-	redis默认端口为：6379
+##### Opcode缓存：
+虚拟机把PHP代码编译成一种中间码的结果缓存起来，下次PHP运行此页面时，只要直接解释这些代码就行了。
+eAccelerator工具能起到常驻内存的作用
 
-	redis配置文件（待整理）
+客户端缓存、http缓存（待记录）
+H5中的Application Cache:
+用来处理离线应用中的问题，用户不能联网时依然能浏览整个站点
+需要在html中指定页面是否需要此缓存：
+<html manifest="cacheName.mf">
 
-	redis key相关命令：
-	exits key     //key是否存在，返回0/1
-	del key1 key2..     //删除指定key，返回删除key的数目，0表示key都不存在
-	type key     //返回给定key的value类型，none表示不存在key
-	types pattern     //返回匹配指定模式的所有key
-	expire key seconds     //设置指定key的过期时间
-	randomkey     //返回当前数据库中随机的一个key，如果数据库为空，返回空字符串
-	rename oldkey newkey     //重命名key
-	renamenx oldkey newkey     //重命名key，如果newkey存在返回失败
-	ttl key     //返回设置过期时间key的剩余秒数，-1表示key不存在或没有设置过期时间
-	move key db-index     //将key从当前数据库移动到指定的数据库，返回1成功，0表示不存在或已在指定数据库
+Memcached
+使用Memcached：
+对数据库的高并发读写
+对海量数据处理
+Memcached是高性能的分布式内存缓存服务器，通过缓存数据库查询结果，减少数据库访问次数。
+Memcached特点：
+协议简单
+基于libevent的事件处理
+内置内存存储方式
+采用不互相通信的分布式
+以守护进程方式运行与一个或多个服务器中
+Memcached使用LRU算法淘汰数据缓存
+不支持数据持久化
+Memcached把数据存储在内存中，所以重启Memcached或者操作系统会导致数据全部消失
+
+安装memcached：
+apt-get install memcached
+启动memcached:
+memcached -d -m 128 -u root -p 11211
+-d：守护进程方式运行
+-m：设置Memcached可使用的内存大小，单位是MB
+-l：设置监听的IP地址，本机可默认不设置
+-u：指定用户
+-p：设置监听的端口，默认为11211
+
+安装PHP的memcached扩展：
+ sudo apt-get install php5-memcache
+
+ memcached扩展的一些方法：
+ Memcache::connect(string $host [, int $port [ , int $timeout]]);     //连接mem服务器
+     $timeout为连接持续时间，默认为1秒。过长的时间会倒置失去所有缓存的优势
+	 Memcache::addServer(string $host [ , $port [ , $bool $persistent [ , $weight [, int $timeout [, int $retry_interval [ , bool $status [ , callback $failure_callback]]]]]]]);     //向对象添加一个服务器
+	 Memcache::add(string $key,$mixed $var [, int $flag[ , int $expire]]);    //添加缓存数据
+	 key长度不能超过250字节，
+	 var 值最大为1MB
+	 $flag 是否使用ZLib压缩，设置为MEMACHE_COMPRESSED使用压缩
+	 $expire缓存过期时间，0表示不过期。设置不能大于2592000（30天）
+	 Memcache::replace(string $key, mixed $var [ , int $flag [, int $expire]]);    //替换一个已存在的key
+	 Memcache::set(string $key ,mixed $vsar [ , $flag [ , $expire]])    //add和replace的集合体
+Memcache::get(string $key [ , int &flags]);    //获取key的缓存内容
+$flags 如果给定此参数（引用方式传递），该参数会被写入一些与key对应的信息
+Memcache::delete(string $key [ , $timeout]);    //删除key的缓存
+Memcache::flush(void);    //立即使所有已经存在的缓存失效
+不真正释放任何资源，仅标记为失效
+Memcache::getServerStatus(string $host [ , $port]);    //获取一个服务器的在线/离线状态
+Memcache::getStats([ string $type [ , $slabid [ , int $limit = 100]]]);    //获取服务器的统计信息
+Memcache::close(void);    //关闭与Memcache服务器的连接
+Memcached使用多路复用I/O模型（如epoll、select）,传统阻塞IO中 系统可能会因为某个用户连接还没做好IO准备而一直等待，直到这个连接做好准备，如果此时游其他用户连接到服务器，可能会因为系统阻塞而得不到相应。
+多路复用I/O是一种消息通知模式，用户连接做好IO准备后，系统会通知这个连接可进行IO操作，这样就不会阻塞在某个用户连接。
+Memcached使用Slab分配算法保存数据
+Slab分配算法的原理是，把固定大小(mem默认为1M)的内存划分为n块，每1M大小的内存块称为一个slab页，每次向系统申请一个slab页，然后通过分割算法把这个slab页分成若个小块的chunk，然后把这些chunk分配给用户使用。
+Memcached多线程模型：
+主线程：接受客户端连接，并把连接分配给工作线程处理
+工作线程：处理客户端连接的请求
+Memcached分布式布置方案：
+普通Hash分布
+一致性Hash分布
+Redis
+Redis把整个数据库全加载到内存中进行操作，通过异步操作定期把数据库数据flush到硬盘保存
+Reids特点：
+支持丰富的数据类型：String、List、Sort、Sorted Set、Hash
+支持数据持久化方式：内存快照、日志追加
+支持主从复制
+安装Redis:
+http://www.cnblogs.com/fslnet/p/3759284.html
+安装php扩展redis:
+sudo apt-get install php5-redis
+redis默认端口为：6379
+
+redis配置文件（待整理）
+
+redis key相关命令：
+exits key     //key是否存在，返回0/1
+del key1 key2..     //删除指定key，返回删除key的数目，0表示key都不存在
+type key     //返回给定key的value类型，none表示不存在key
+types pattern     //返回匹配指定模式的所有key
+expire key seconds     //设置指定key的过期时间
+randomkey     //返回当前数据库中随机的一个key，如果数据库为空，返回空字符串
+rename oldkey newkey     //重命名key
+renamenx oldkey newkey     //重命名key，如果newkey存在返回失败
+ttl key     //返回设置过期时间key的剩余秒数，-1表示key不存在或没有设置过期时间
+move key db-index     //将key从当前数据库移动到指定的数据库，返回1成功，0表示不存在或已在指定数据库
