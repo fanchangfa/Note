@@ -1,53 +1,59 @@
 ##### 基础知识总结
 PHP是一个支持面向对象开发的语言，而不是一个纯面向对象的语言
 PHP5中保留了对var的支持，但会将var自动转换为public
-类型检查函数：
-is_bool()
-is_integer()
-is_double()
-is_string()
-is_object()
-is_array()
-is_resource()
-is_null()
+###### 类型检查函数：
+* is_bool()
+* is_integer()
+* is_double()
+* is_string()
+* is_object()
+* is_array()
+* is_resource()
+* is_null()
+
 
 ###### PHP魔术方法：
-__call()
-__callStatic()     (必须是static属性)
-__set()
-__get()
-__isset()
-__clone()
-__toString()
+* __call()
+* __callStatic()     (必须是static属性)
+* __set()
+* __get()
+* __isset()
+* __clone()
+* __toString()
 
 字符串"false"在比较操作时会解析为true,因为PHP在测试变量时会转换一个非空字符串值为bool值true
 
-静态方法是以类作用域的函数。静态方法不能访问这个类中的普通属性，因为那些属性属于一个对象，但可以访问静态属性（不能在静态方法中使用伪变量$this）
+静态方法是以类作用域的函数。静态方法不能访问这个类中的普通属性，因为那些属性属于一个对象，但可以访问静态属性（不能在静态方法中使用伪变量$this） 
 
-常量属性只包含基本数据类型的值，不能将一个对象指派给常量
-抽象类(abstract class)不能被直接实例化，只定义(或部分实现)子类需要的方法
-抽象类至少包含一个抽象方法
-static类似于self，但它指的是被调用的类而不是包含类
+常量属性只包含基本数据类型的值，不能将一个对象指派给常量 
+抽象类(abstract class)不能被直接实例化，只定义(或部分实现)子类需要的方法  
+抽象类至少包含一个抽象方法 
+static类似于self，但它指的是被调用的类而不是包含类 
+```
 return new static()
+```
 
 复制对象：
+```
 $first = new ClassName();
 $second = $first;
 //在php5以后的版本中，$second 和 $fitst指向同一个对象
 
 $third = clone $first;          //使用clone进行"值复制"
 //在php5以后的版本中，$third和$first是两个不同的对象
+```
 控制复制什么：
 可以实现一个__clone()方法
 比如待复制的对象中有个$id=1，可我们希望此id唯一，不希望clone此id，可以在类中自己实现clone方法
 
 回调、匿名函数：
-is_callable();
-call_user_func($funcName,$param);     //单个参数
-call_user_func_array($funcName,$arrParam);     //参数是数组的形式
+* is_callable();
+* call_user_func($funcName,$param);     //单个参数
+* call_user_func_array($funcName,$arrParam);     //参数是数组的形式
 
 命名空间Namespace:
 命名空间是一个容器，在命名空间之外，必须导入或引用命名空间才能访问它所包含的项。
+```
 namespace com\name\test1;
 class Debug{
 	    static function test();
@@ -59,19 +65,23 @@ namespace test2;
 
 use com\name\test1;
 test1\Debug::test();  
+```
 
-解决类命名冲突：
+###### 解决类命名冲突：
+```
 use com\name\test1\Debug as uDebug;
 class Debug{...}
 uDebug::test();
 
 __NAMESPACE__     //输出当前的命名空间
-
+```
 命名空间加大括号形式:
+```
 namespace com\name\test1{
-	    class Debug1{...}
-		    class Debug2{...}
+    class Debug1{...}
+    class Debug2{...}
 }
+```
 require()调用文件发生错误时，将会停止整个程序，
 调用include()时遇到相同的错误，会生成警告并停止执行包含文件，跳出调用代码然后继续执行。
 
