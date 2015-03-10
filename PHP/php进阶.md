@@ -83,59 +83,59 @@ namespace com\name\test1{
 }
 ```
 require()调用文件发生错误时，将会停止整个程序，
-调用include()时遇到相同的错误，会生成警告并停止执行包含文件，跳出调用代码然后继续执行。
+调用include()时遇到相同的错误，会生成警告并停止执行包含文件，跳出调用代码然后继续执行。 
 
 require()和require_once()用于包含库文件时更加安全，include()和include_once()适用于加载模板等操作
-相对require()函数，require_once()需要额外的开销
+相对require()函数，require_once()需要额外的开销 
 
-自动加载autoload:
+###### 自动加载autoload:
 当PHP引擎遇到试图实例化未知类的操作时，会调用__autoload()方法(需提前定义)，并将类名当作字符串参数传递
 例如：
+```
 function __autoload($className){
-	    //将$className中的下划线转换为目录分割
-	    $path = str_replace('_',DIRECTORY_SEPARATOR,$className);
-		    require_once("$path.php");
+    //将$className中的下划线转换为目录分割
+    $path = str_replace('_',DIRECTORY_SEPARATOR,$className);
+    require_once("$path.php");
 }
+```
 __autoload方法是一种根据类和文件的结构，管理类库文件包含的有效方法。
 
-类函数：
-class_exists();
-get_declared_classes();     //获得脚本进程中定义的所有类的数组
-get_class($obj);     //检查对象的类，检查对象所属的类
-$obj instalceof className;     //检查对象
+###### 类函数：
+* class_exists();
+* get_declared_classes();     //获得脚本进程中定义的所有类的数组
+* get_class($obj);     //检查对象的类，检查对象所属的类
+* $obj instalceof className;     //检查对象
+* get_class_methods();     //获取一个类中所有的方法列表
+* is_callable()、method_exists()     //检查类方法是否存在且可被调用
+####### 一个方法存在并不以为着可调用，对private、protected、public方法，method_exists()都返回true
 
-get_class_methods();     //获取一个类中所有的方法列表
+* get_class_vars($className);     //获取类中定义的属性
+* get_parent_class($classNa,e);     //获取一个类的父类
+* is_subclass_of($className , 'classStrName');     //检查类是否是另一个类的派生类
+* class_implements($className);      //返回一个由接口名组成的数组
 
-is_callable()、method_exists()     //检查类方法是否存在且可被调用
-#一个方法存在并不以为着可调用，对private、protected、public方法，method_exists()都返回true
+#### 反射API
+根据到达地找到出发地和来源，反射指在PHP运行状态中扩展分析PHP程序，导出或提取出关于类、方法、属性、参数等的详细信息，包括注释。这种动态获取信息以及动态调用对象方法的功能称为反射API
+使用反射API可以对文件里的类进行扫描，逐个生成描述文件
 
-	get_class_vars($className);     //获取类中定义的属性
-	get_parent_class($classNa,e);     //获取一个类的父类
-	is_subclass_of($className , 'classStrName');     //检查类是否是另一个类的派生类
-	class_implements($className);      //返回一个由接口名组成的数组
+##### 面向对象设计的五大原则：
+1. 单一职责原则
+2. 接口隔离原则
+3. 开放-封闭原则
+4. 替换原则
+5. 依赖-倒置原则
 
-	反射API
-	根据到达地找到出发地和来源，反射指在PHP运行状态中扩展分析PHP程序，导出或提取出关于类、方法、属性、参数等的详细信息，包括注释。这种动态获取信息以及动态调用对象方法的功能称为反射API
-	使用反射API可以对文件里的类进行扫描，逐个生成描述文件
-
-	面向对象设计的五大原则：
-	单一职责原则
-	接口隔离原则
-	开放-封闭原则
-	替换原则
-	依赖-倒置原则
-
-	sql优化的10个原则：
-	不要在列上进行函数运算，导致索引失败
-	使用JOIN时，应用小结果集驱动大结果集。把复杂的JOIN查询拆分为多条sql
-	使用like模糊查询时，避免%%，可替换为<= 、 >=
-	select后仅列出需要的字段，对速度不会有明显影响，主要考虑节省内存
-	使用批量插入语句，比依次执行单个插入节省交互
-	limit的技术比较大时考虑使用between
-	不要使用rand函数获取多条随机记录
-	避免使用NULL
-	不要使用count(id)，而是count(*)
-	尽可能在索引中完成排序
+##### sql优化的10个原则：
+不要在列上进行函数运算，导致索引失败
+使用JOIN时，应用小结果集驱动大结果集。把复杂的JOIN查询拆分为多条sql
+使用like模糊查询时，避免%%，可替换为<= 、 >=
+select后仅列出需要的字段，对速度不会有明显影响，主要考虑节省内存
+使用批量插入语句，比依次执行单个插入节省交互
+limit的技术比较大时考虑使用between
+不要使用rand函数获取多条随机记录
+避免使用NULL
+不要使用count(id)，而是count(*)
+尽可能在索引中完成排序
 	缓存的三个要素：
 	命中率
 	缓存更新策略
